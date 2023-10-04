@@ -1,0 +1,20 @@
+#basic makefile
+.PHONY = all
+
+all: output
+
+output: main.o part1.o part2.o
+	g++ -o output main.o part1.o part2.o
+
+main.o: main.cpp part1.h part2.h
+	g++ -c main.cpp
+
+part1.o: part1.cpp part1.h
+	g++ -c part1.cpp
+
+part2.o: part2.cpp part2.h
+	g++ -c part2.cpp
+
+clean:
+	rm -f *.o output 
+

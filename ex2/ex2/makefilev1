@@ -1,0 +1,23 @@
+#variable
+target=output
+GCC=g++
+
+#this is not a file
+.PHONY = all
+
+#recipe
+all: ${target}
+
+#command links o file
+output: hello.o
+	${GCC} -o hello hello.o
+
+
+#creates o file
+hello.o: hello.cpp
+	${GCC} -c hello.cpp
+
+#call make clean to trigger command
+clean: 
+	rm -f *.o hello 
+

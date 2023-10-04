@@ -1,0 +1,84 @@
+SOURCES =main.cpp part1.cpp part2.cpp
+DEPS=$(addprefix $(BUILD_DIR)/,$(SOURCES:.cpp=.d))
+OBJECTS=$(addprefix $(BUILD_DIR)/,$(SOURCES:.cpp=.o))
+# compiler flags
+CXXFLAGS=-I.
+# linker flags
+# LXXFLAGS=
+# archiceture flag
+ARCH?=x86-64
+
+# Making for x86-64 e.g. x86-64 (the architecture employed)
+# > make ARCH=x86-64
+ifeq (${ARCH},x86-64)
+CXX=g++
+BUILD_DIR=build/x86-64
+BIN_DIR=bin/x86-64
+EXE=$(addprefix $(BIN_DIR)/,prog_file)
+endif
+
+# Making for architecture
+# > make ARCH=arm
+ifeq (${ARCH},arm)
+CXX=arm-rpizw-g++
+BUILD_DIR=build/arm
+BIN_DIR=bin/arm
+EXE=$(addprefix $(BIN_DIR)/,prog_file)
+endif
+
+.PHONY: all 
+# build all 
+all: $(EXE)
+	
+# create program file
+$(EXE):$(DEPS) $(OBJECTS) $(BIN_DIR) 
+	$(CXX) $(CXXFLAGS) -o $@ $(OBJECTS)
+
+# pattern matchin for .o to .cpp
+$(BUILD_DIR)/%.o:%.cpp $(BUILD_DIR)
+	$(CXX) -o $@ -c $< $(CXXFLAGS) 
+	
+# Rule that describes how a .d (dependency) file is created from a .cpp file
+# Similar to the assigment that you just completed %.cpp -> %.o
+# generating dependency files (%.d) in the BUILD_DIR directory based on source files 
+# pattern matching for .d to .c.pp 
+$(BUILD_DIR)/%.d:%.cpp $(BUILD_DIR)
+	$(CXX) -MT$@ -MM $(CXXFLAGS) $< > $@
+	$(CXX) -MT$(@:.d=.o) -MM $(CXXFLAGS) $< >> $@
+#-MM: instructs the compiler to generate dependency information in a makefile format.
+
+#$<: This refers to the prerequisite, which is the source file (%.cpp) that you want to generate dependencies for.
+
+#> $@: This redirects the output of a command to the file specified by $@, overwriting its content if the file already exists.
+
+#>> $@: This appends the output of a command to the file specified by $@, preserving the existing content of the file and adding the new output at the en
+
+# rule for making dir for generated files 
+$(BUILD_DIR):
+	mkdir -p $@
+
+# rule for making dir for executable
+$(BIN_DIR):
+	mkdir -p $@
+
+# clean up
+clean: 
+	rm -f $(EXE) $(OBJECTS) $(DEPS)
+# tidy rule for good coding practice
+tidy: $(SOURCES:.cpp=.tidy)
+%.tidy: %.cpp
+	@echo "Tittying file '$<'"...
+	@clang-tidy $< -- $(CXXFLAGS)
+	@echo "" > $@
+
+# format rule for fixing bad code formating
+format: $(SOURCES:.cpp=.format)
+%.format: %.cpp
+	@echo "Formatting file '$<'"...
+	@clang-format -i $<
+	@echo "" > $@
+
+# Added from listing 4.6 to make tidy and format work with rest
+ifneq ($(filter-out clean format tidy, $(MAKECMDGOALS)),)
+-include $(DEPS)
+endif

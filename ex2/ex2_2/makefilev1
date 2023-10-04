@@ -1,0 +1,30 @@
+SOURCES=main.cpp part1.cpp part2.cpp
+OBJECTS=${SOURCES:.cpp=.o}
+EXECUTABLE=output
+CXX=g++
+CXXFLAGS=-ggdb -I
+
+%.o:%.cpp
+	${CXX} -c -o $@ $^ ${CCXFLAGS}
+
+.PHONY: all
+all: $(EXECUTABLE)
+$(EXECUTABLE): ${OBJECTS}
+	${CXX} -o $@ $^ 
+
+main.o: main.cpp
+	${CXX} -c main.cpp 
+
+part1.o: part1.cpp part1.h
+	${CXX} -c part1.cpp 
+
+part2.o: part2.cpp part2.h
+	${CXX} -c part2.cpp
+
+.PHONY: clean
+
+help:
+	@echo all, main.o, main.cpp, part1.o, part1.h, part1.cpp, part2.o, part2.h, part2.cpp  clean, help
+
+clean: 
+	rm $(EXECUTABLE) ${OBJECTS}
