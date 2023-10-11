@@ -15,7 +15,6 @@ int main(){
     pthread_create(&entryGuardThread, nullptr, entryGuard, nullptr);
     pthread_create(&exitGuardThread, nullptr, exitGuard, nullptr);
 
-
     pthread_create(&carThread, nullptr, carHandler, nullptr);
 
 
